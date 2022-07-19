@@ -7,7 +7,7 @@ import ActiveButton from "../components/ActiveButton";
 import { useEffect } from "react";
 import store from "store2";
 
-export default function parametre() {
+export default function Parametre() {
   useEffect(() => {
     if (store("settings_rotationDirection")) {
       document.getElementById("rotationArrow").classList.add("flip");
