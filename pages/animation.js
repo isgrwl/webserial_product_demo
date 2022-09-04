@@ -34,7 +34,6 @@ export default function Animation(props) {
 
   useEffect(() => {
     if (props.paired) {
-      console.log("hi:", props.port);
       writeToSerial(props.port, [
         `Va${props.params.numPhotos}`,
         `Vb${props.params.flashDelay}`,

@@ -73,13 +73,13 @@ function MyApp({ Component, pageProps }) {
             ports[0].addEventListener("disconnect", (e) => {
               e.target.close();
             });
-
             //start reading on port
-            while (port.readable) {
-              const reader = port.readable.getReader();
+            while (ports[0].readable) {
+              const reader = ports[0].readable.getReader();
 
               try {
                 while (true) {
+                  console.log("reading...");
                   const { value, done } = await reader.read();
                   if (done) {
                     // Allow the serial port to be closed later.

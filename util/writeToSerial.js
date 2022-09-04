@@ -1,16 +1,16 @@
 export default async function (port, instructions) {
   //takes array of instructions
-  if (port.writable) {
+  console.log(port);
+  if (!port.writable?.locked) {
     try {
       const textEncoder = new TextEncoderStream();
       const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
       const writer = textEncoder.writable.getWriter();
 
-      console.log(textEncoder);
       for (let i of instructions) {
         await writer.write(i);
-        writer.releaseLock();
       }
+      writer.releaseLock();
     } catch (err) {
       console.log(err);
     }
