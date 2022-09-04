@@ -63,7 +63,7 @@ function MyApp({ Component, pageProps }) {
           try {
             console.log("opening port..");
             let ports = await navigator.serial.getPorts();
-            await ports[0].open({ baudRate: 9600 });
+            await ports[0].open({ baudRate: 115200 });
 
             setPort((s) => {
               return ports[0];
