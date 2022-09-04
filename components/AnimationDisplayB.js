@@ -10,13 +10,13 @@ export default function AnimationDisplayB(props) {
     } else {
       setBoxValues(new Array(24).fill(1));
     }
-    console.log(boxValues);
 
     function drawBoxes() {
       const display = document.getElementById("display");
       const rect = display.getBoundingClientRect();
       const checkBoxes = document.querySelectorAll("button[find=selectButton]");
-
+      {
+        /*
       for (const box of checkBoxes) {
         const i = box.getAttribute("i");
         box.style.top = `${
@@ -29,7 +29,8 @@ export default function AnimationDisplayB(props) {
           rect.width / 2 -
           box.clientWidth / 2
         }px`;
-        box.style.position = "absolute";
+      box.style.position = "absolute";
+      }*/
       }
     }
 
@@ -43,7 +44,7 @@ export default function AnimationDisplayB(props) {
   return (
     <div
       id="display"
-      className="flex-fill animation360-noborder d-flex justify-content-center align-items-center"
+      className="animation360-noborder flex-fill d-flex justify-content-center align-items-center"
     >
       {(() => {
         return new Array(24).fill(0).map((v, i) => {
@@ -58,9 +59,10 @@ export default function AnimationDisplayB(props) {
           );
         });
       })()}
-
-      <img src="/imgs/download.png" />
-      <img className="bgWheel" src="/imgs/E-commerce.jpg" />
+      <div className="twoImage">
+        <img className="fgIdk" src="/imgs/download.png" />
+        {/*<img className="bgWheel" src="/imgs/E-commerce.jpg" />*/}
+      </div>
     </div>
   );
 }

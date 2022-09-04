@@ -3,6 +3,7 @@ import MyHead from "../components/MyHead";
 import Navbar from "../components/Navbar";
 
 export default function Connection(props) {
+  //status is just for the GUI display, props contain connection state of app
   const [status, setStatus] = useState(
     props.paired ? "Paired." : "Not paired."
   );
@@ -12,29 +13,35 @@ export default function Connection(props) {
     const testBtn = document.getElementById("testBtn");
     */
     //check if web serial is support
-    if ("serial" in navigator) {
-      let availablePorts;
 
+    document.getElementById("connectBtn").onclick = async (e) => {
+      //check whether WebSerial API is available
+      if (!("serial" in navigator)) {
+        console.error("WebSerial not supported");
+        setStatus("WebSerial API not supported..");
+        return;
+      }
       console.log("Api supported");
 
-      document.getElementById("connectBtn").onclick = async (e) => {
-        //let keepReading;
-        //let reader;
-        try {
-          availablePorts = await navigator.serial.getPorts();
-          await availablePorts.map((port) => {
-            port.forget();
-          });
-          //console.log(availablePorts);
+      let availablePorts;
+      try {
+        //disconnect from all available ports
+        availablePorts = await navigator.serial.getPorts();
+        await availablePorts.map((port) => {
+          return port.forget();
+        });
 
-          setStatus("Pairing..");
-          await navigator.serial.requestPort();
-          //console.log(ports);
-          props.setPaired(1);
-          setStatus("Paired.");
+        //start pairing process
+        setStatus("Pairing..");
+        props.setPaired(0);
+        await navigator.serial.requestPort();
 
-          //loop to handle non-fatal errors
-          /*while (port.readable) {
+        //successful pairing
+        props.setPaired(1);
+        setStatus("Paired.");
+
+        //loop to handle non-fatal errors
+        /*while (port.readable) {
             reader = port.readable.getReader();
             try {
               //loop to listen to data coming from serial device
@@ -54,14 +61,14 @@ export default function Connection(props) {
               reader.releaseLock();
             }
           }*/
-          //console.log(JSON.parse(window.localStorage.getItem("port")));
-          //await reader.close();
-        } catch {
-          console.log("Failed to pair.");
-          props.setPaired(0);
-          setStatus("Failed to pair.");
-        }
-      };
+        //console.log(JSON.parse(window.localStorage.getItem("port")));
+        //await reader.close();
+      } catch {
+        //unsuccessful pairing
+        props.setPaired(0);
+        setStatus("Failed to pair.");
+      }
+
       /*
       testBtn.onclick = async (e) => {
         let port;
@@ -111,10 +118,7 @@ export default function Connection(props) {
           
         }
       });*/
-    } else {
-      console.log("WebSerial not supported");
-      setStatus("WebSerial API not supported..");
-    }
+    };
   }, []);
 
   return (

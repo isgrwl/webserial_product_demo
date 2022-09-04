@@ -3,20 +3,13 @@ import Link from "next/link";
 import NavbarB from "../components/NavbarB";
 import ParamSlider from "../components/ParamSlider";
 import Footer from "../components/Footer";
-import ActiveButton from "../components/ActiveButton";
-import { useEffect } from "react";
+import ParamLaser from "../components/ParamLaser";
+
+import { useEffect, useState } from "react";
 import store from "store2";
+import ParamRotation from "../components/ParamRotation";
 
-export default function Parametre() {
-  useEffect(() => {
-    if (store("settings_rotationDirection")) {
-      document.getElementById("rotationArrow").classList.add("flip");
-    }
-
-    if (store("settings_laserActive")) {
-      document.getElementById("laserButton").classList.add("running");
-    }
-  });
+export default function Parametre(props) {
   return (
     <>
       <MyHead title="Animation"></MyHead>
@@ -25,53 +18,58 @@ export default function Parametre() {
         <NavbarB title="Parametres animation 360"></NavbarB>
         {/** Menu and sliders */}
         <div className="mt-3 px-5">
-          <ParamSlider id="numPhotos">Choisir Nombre de photos</ParamSlider>
-          <ParamSlider id="flashDelay">
+          <ParamSlider
+            id="numPhotos"
+            min={24}
+            max={120}
+            setState={props.setParams}
+            val={props.params.numPhotos}
+          >
+            Choisir Nombre de photos
+          </ParamSlider>
+          <ParamSlider
+            id="flashDelay"
+            min={0}
+            max={10}
+            setState={props.setParams}
+            val={props.params.flashDelay}
+          >
             Choisir un delais en secondes pour le recharger les flashes
           </ParamSlider>
-          <ParamSlider id="rotationSpeed">
+          <ParamSlider
+            id="rotationSpeed"
+            min={1}
+            max={5}
+            setState={props.setParams}
+            val={props.params.rotationSpeed}
+          >
             Choisir la vitesse de rotation
           </ParamSlider>
-          <ParamSlider id="laserAngle">
+          <ParamSlider
+            id="laserAngle"
+            min={0}
+            max={90}
+            setState={props.setParams}
+            val={props.params.laserAngle}
+          >
             Choisir l&apos;angle du laser
           </ParamSlider>
         </div>
         {/**Footer */}
-        {/**Rotation Button */}
+
         <div className="d-flex justify-content-evenly align-items-center">
-          <div className="position-relative d-flex col-3 align-items-center">
-            <span className="">Sens de rotation</span>
-            <img
-              id="rotationArrow"
-              src="/imgs/fleche droite.png"
-              onClick={(e) => {
-                e.target.classList.toggle("flip");
-                store(
-                  "settings_rotationDirection",
-                  store("settings_rotationDirection") ? 0 : 1
-                );
-              }}
-            />
-          </div>
+          {/**Rotation Button */}
+          <ParamRotation
+            id="rotationDirection"
+            setState={props.setParams}
+            val={props.params.rotationDirection}
+          ></ParamRotation>
           {/**Enable laser button */}
-          <div className="d-flex col-3 align-items-center">
-            <span className="">Etat de la croix laser</span>
-            <button
-              id="laserButton"
-              className="activeButton w-25 h-75"
-              onClick={(e) => {
-                e.target.innerHTML =
-                  e.target.innerHTML === "Actif" ? "Inactif" : "Actif";
-                e.target.classList.toggle("running");
-                store(
-                  "settings_laserActive",
-                  store("settings_laserActive") ? 0 : 1
-                );
-              }}
-            >
-              Inactif
-            </button>
-          </div>
+          <ParamLaser
+            id="laserActive"
+            setState={props.setParams}
+            val={props.params.laserActive}
+          ></ParamLaser>
         </div>
         <Footer path="parametre_aide"></Footer>
       </div>

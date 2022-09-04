@@ -1,7 +1,8 @@
 import MyHead from "../components/MyHead";
 import Link from "next/link";
 import Script from "next/script";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useCallback, forwardRef } from "react";
+import { useRouter } from "next/router";
 
 import Menu from "../components/Menu";
 import MenuButton from "../components/MenuButton";
@@ -11,78 +12,91 @@ import MenuArrows from "../components/MenuArrows";
 import AnimationDisplay from "../components/AnimationDisplay";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
+import store from "store2";
 
 import writeToSerial from "../util/writeToSerial";
 
 export default function Animation(props) {
   //0=stopped,1=running,2=paused
-  const [runningState, setRunningState] = React.useState(props.paired);
+  const [runningState, setRunningState] = React.useState(0);
+  const [photosTaken, setPhotosTaken] = React.useState(0);
+  const [platformRotation, setPlatformRotation] = React.useState(0);
+  const router = useRouter();
+
+  const startBtn = useRef();
+  const pauseBtn = useRef();
+  const testBtn = useRef();
+
+  //switch running state if unpaired
+  useEffect(() => {
+    setRunningState(0);
+  }, [props.paired]);
 
   useEffect(() => {
-    if (!props.paired) setRunningState(0);
-    /*window.onbeforeunload = () => {
-      return "";
-    };*/
+    if (props.paired) {
+      console.log("hi:", props.port);
+      writeToSerial(props.port, [
+        `Va${props.params.numPhotos}`,
+        `Vb${props.params.flashDelay}`,
+        `Vc${props.params.rotationSpeed}`,
+        `Vd${props.params.laserAngle}`,
+        `Ve${props.params.laserActive}`,
+        `Vf${props.params.rotationDirection}`,
+      ]);
+    }
+  }, [props.port]);
 
-    const startBtn = document.getElementById("start");
-    const pauseBtn = document.getElementById("pause");
-    const testBtn = document.getElementById("test");
-
-    //add button press animation
-    testBtn.addEventListener("mousedown", (e) => {
-      testBtn.classList.add("running");
-    });
-    document.addEventListener("mouseup", (e) => {
-      testBtn.classList.remove("running");
-    });
-
+  //style buttons based on running state
+  useEffect(() => {
     //app logic
     switch (runningState) {
       case 0:
-        startBtn.classList.remove("running");
-        startBtn.innerHTML = "Demarrer";
+        startBtn.current.classList.remove("running");
+        startBtn.current.innerHTML = "Demarrer";
 
-        pauseBtn.classList.add("disabled");
-        pauseBtn.classList.remove("running");
-        pauseBtn.disabled = true;
-        pauseBtn.innerHTML = "Pause";
+        pauseBtn.current.classList.add("disabled");
+        pauseBtn.current.classList.remove("running");
+        pauseBtn.current.disabled = true;
+        pauseBtn.current.innerHTML = "Pause";
 
-        testBtn.classList.remove("disabled");
-        testBtn.disabled = false;
-
-        document.querySelectorAll('[type="menuOption"]').forEach((e) => {
-          e.classList.remove("disabled");
-          e.disabled = false;
-        });
+        testBtn.current.classList.remove("disabled");
+        testBtn.current.disabled = false;
 
         break;
       case 1:
-        startBtn.classList.add("running");
-        startBtn.innerHTML = "Annuler";
+        startBtn.current.classList.add("running");
+        startBtn.current.innerHTML = "Annuler";
 
-        pauseBtn.classList.remove("disabled");
-        pauseBtn.classList.remove("running");
-        pauseBtn.disabled = false;
-        pauseBtn.innerHTML = "Pause";
+        pauseBtn.current.classList.remove("disabled");
+        pauseBtn.current.classList.remove("running");
+        pauseBtn.current.disabled = false;
+        pauseBtn.current.innerHTML = "Pause";
 
-        testBtn.classList.add("disabled");
-        testBtn.disabled = true;
+        testBtn.current.classList.add("disabled");
+        testBtn.current.disabled = true;
 
-        document.querySelectorAll('[type="menuOption"]').forEach((e) => {
-          e.classList.add("disabled");
-          e.disabled = true;
-        });
         break;
       case 2:
-        pauseBtn.classList.add("running");
-        pauseBtn.innerHTML = "Redemarrer";
-        testBtn.classList.remove("disabled");
-        testBtn.disabled = false;
+        pauseBtn.current.classList.add("running");
+        pauseBtn.current.innerHTML = "Redemarrer";
+        testBtn.current.classList.remove("disabled");
+        testBtn.current.disabled = false;
 
         break;
     }
-  }, [runningState, props.paired]);
+  }, [runningState]);
 
+  //listen for page change
+  /*
+  useEffect(() => {
+    router.events.on("routeChangeStart", (url, { shallow }) => {
+      console.log(router.pathname);
+      if (["/manuel", "/animation", "/ecom"].includes(router.pathname)) {
+        console.log("don't leave!\n");
+      }
+    });
+  }, [router]);
+  */
   return (
     <>
       <MyHead title="Animation"></MyHead>
@@ -94,7 +108,7 @@ export default function Animation(props) {
       */}
       <div className="container-fluid">
         {/**Nav bar */}
-        <Navbar>Prise de vue animation 360</Navbar>
+        <Navbar paired={props.paired}>Prise de vue animation 360</Navbar>
 
         {/**Menu and display */}
         <div className="d-flex justify-content-evenly mt-3">
@@ -102,42 +116,44 @@ export default function Animation(props) {
           <Menu>
             <MenuButton
               id="start"
+              type="click"
+              innerRef={startBtn}
               onClick={() => {
-                if (props.paired) {
-                  writeToSerial("23 02 54 09");
-                  setRunningState(runningState === 0 ? 1 : 0);
-                }
+                setRunningState(runningState ? 0 : 1);
               }}
             >
               Demarrer
             </MenuButton>
             <MenuButton
               id="pause"
+              type="click"
+              innerRef={pauseBtn}
               onClick={() => {
-                if (props.paired) {
-                  writeToSerial("23 02 54 09");
-                  setRunningState(runningState === 1 ? 2 : 1);
-                }
+                setRunningState(runningState === 1 ? 2 : 1);
               }}
             >
               Pause
             </MenuButton>
             <MenuButton
               id="test"
-              onClick={() => {
-                if (props.paired) {
-                  writeToSerial("23 02 54 09");
-                }
-              }}
+              type="press"
+              innerRef={testBtn}
+              onClick={() => {}}
             >
               Camera Test
             </MenuButton>
-            <MenuNumber>Photos a faire</MenuNumber>
-            <MenuNumber>Photos Realisees</MenuNumber>
-            <MenuNumber>Position du Plateau</MenuNumber>
-            <MenuNumber>Delais de Flashes</MenuNumber>
-            <MenuRotation>Sens de Rotation</MenuRotation>
-            <MenuNumber>Vitesse de Rotation</MenuNumber>
+            <MenuNumber val={props.params.numPhotos}>Photos a faire</MenuNumber>
+            <MenuNumber val={photosTaken}>Photos Realisees</MenuNumber>
+            <MenuNumber val={platformRotation}>Position du Plateau</MenuNumber>
+            <MenuNumber val={props.params.flashDelay}>
+              Delais de Flashes
+            </MenuNumber>
+            <MenuRotation val={props.params.rotationDirection}>
+              Sens de Rotation
+            </MenuRotation>
+            <MenuNumber val={props.params.rotationSpeed}>
+              Vitesse de Rotation
+            </MenuNumber>
             {/**left/right arrows */}
             <MenuArrows></MenuArrows>
           </Menu>

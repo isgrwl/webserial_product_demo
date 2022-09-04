@@ -1,4 +1,4 @@
-import MyHead from "../components/MyHead";
+import MyHead from "../../components/MyHead";
 import Link from "next/link";
 
 export default function indexAide() {
