@@ -1,15 +1,21 @@
+//t type: v or f (variable or function)
+//l letter: a-f (which variable to act on eg laserAngle, rotationSpeed)
+//v val: integer value to set variable to
 export default async function (port, instructions) {
   //takes array of instructions
-  console.log(port);
-  if (!port.writable?.locked) {
+  if (!port.writable?.locked && port.writable) {
     try {
       const textEncoder = new TextEncoderStream();
       const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
       const writer = textEncoder.writable.getWriter();
 
-      for (let i of instructions) {
-        await writer.write(i);
+      //console.log(writer);
+      //console.log(formattedInstructions);
+      for (let instruction of instructions) {
+        console.log("writing..");
+        await writer.write(instruction);
       }
+
       writer.releaseLock();
     } catch (err) {
       console.log(err);
@@ -23,3 +29,7 @@ function HexArrayToDecimal(s) {
     return parseInt(n, 16);
   });
 }*/
+
+
+
+

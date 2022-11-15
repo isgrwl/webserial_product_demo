@@ -172,10 +172,11 @@ input[type="number"]:disabled {
 }
 
 .animation360-noborder {
-  max-width: 100%;
-  height: auto;
+  max-width: 35vw;
+  height: 35vw;
   background-image: url("/imgs/E-commerce.jpg");
   background-size: contain;
+  background-repeat: no-repeat;
 }
 
 .bgWheel {
@@ -184,10 +185,6 @@ input[type="number"]:disabled {
 
 .fgIdk {
   z-index: 1;
-}
-
-.twoImage {
-  display: grid;
 }
 
 /*=-

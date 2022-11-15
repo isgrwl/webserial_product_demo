@@ -1,20 +1,18 @@
 import { useState, useEffect, useSyncExternalStore } from "react";
 import store from "store2";
+import clsx from "clsx";
 
 export default function SelectBox(props) {
-  const [checked, setChecked] = useState(1);
+  //fuck react and this bullshit fuck
+  const [classPlaceholder, setClassPlaceholder] = useState("");
   useEffect(() => {
-    //setChecked(props.checked);
-  }, []);
-
+    setClassPlaceholder(props.checked && "checked");
+  }, [props.checked]);
   return (
     <button
       find="selectButton"
-      i={props.i}
-      className={checked ? "checked selectButton" : "selectButton"}
-      onClick={(e) => {
-        setChecked(checked ? 0 : 1);
-      }}
+      className={`selectButton ${classPlaceholder}`}
+      onClick={props.onClick}
       disabled={props.enable || false}
     ></button>
   );

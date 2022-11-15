@@ -45,7 +45,7 @@ export default function Manuel(props) {
             <MenuButton
               onClick={() => {
                 if (props.paired) {
-                  writeToSerial("23 02 54 0F");
+                  writeToSerial(props.port,["Fi1"]);
                 }
               }}
             >
@@ -53,18 +53,14 @@ export default function Manuel(props) {
             </MenuButton>
             <MenuButton
               onClick={() => {
-                if (props.paired) {
-                  writeToSerial("23 02 54 11");
-                }
+                writeToSerial(props.port,["Fd1"]);
               }}
             >
               Camera
             </MenuButton>
             <MenuButton
               onClick={() => {
-                if (props.paired) {
-                  writeToSerial("23 02 54 10");
-                }
+                writeToSerial(props.port,["Fj1"]);
               }}
             >
               Annuler

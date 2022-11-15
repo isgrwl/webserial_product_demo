@@ -12,6 +12,7 @@ import MenuArrows from "../components/MenuArrows";
 import Footer from "../components/Footer";
 import React from "react";
 import { useRef } from "react";
+import writeToSerial from "../util/writeToSerial";
 
 export default class Ecom extends React.Component {
   //0 = stopped, 1= running, 2= selecting
@@ -43,11 +44,15 @@ export default class Ecom extends React.Component {
     const startBtn = document.getElementById("start");
     const selectBtn = document.getElementById("select");
     const testBtn = document.getElementById("test");
-
     //app logic
     switch (this.state.runningState) {
       case 0:
         //stopped
+        writeToSerial(this.props.port, [
+          "Fg" + this.props.params.boxValues.join(""),
+        ]);
+        writeToSerial(this.props.port, "Fh0");
+
         startBtn.classList.remove("running");
         startBtn.classList.remove("disabled");
         startBtn.disabled = false;
@@ -71,6 +76,7 @@ export default class Ecom extends React.Component {
         break;
       case 1:
         //running
+        writeToSerial(this.props.port, "Fh1");
         startBtn.classList.add("running");
         startBtn.innerHTML = "Annuler";
 
@@ -141,7 +147,14 @@ export default class Ecom extends React.Component {
               >
                 Prendre les photos
               </MenuButton>
-              <MenuButton id="test">Camera test</MenuButton>
+              <MenuButton
+                id="test"
+                onClick={() => {
+                  writeToSerial(props.port, ["Fc1"]);
+                }}
+              >
+                Camera test
+              </MenuButton>
               <MenuNumber>Photos realisees</MenuNumber>
               <MenuNumber>Position du plateau</MenuNumber>
               <MenuNumber>Delais des flashes</MenuNumber>
@@ -154,6 +167,8 @@ export default class Ecom extends React.Component {
               id="display"
               enable={this.state.runningState}
               paired={this.props.paired}
+              params={this.props.params}
+              setParams={this.props.setParams}
             ></AnimationDisplayB>
           </div>
           {/**Help button */}

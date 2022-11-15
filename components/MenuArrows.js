@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import writeToSerial from "../util/writeToSerial";
 
 export default function MenuArrows() {
   useEffect(() => {
@@ -14,6 +15,10 @@ export default function MenuArrows() {
           className="img-fluid"
           onMouseDown={(e) => {
             handleMousedown(e);
+            writeToSerial(props.port, ["Ff1"]);
+          }}
+          onMouseUp={(e) => {
+            writeToSerial(props.port, ["Ff0"]);
           }}
         />
       </div>
@@ -23,6 +28,10 @@ export default function MenuArrows() {
           className="img-fluid "
           onMouseDown={(e) => {
             handleMousedown(e);
+            writeToSerial(props.port, ["Fe1"]);
+          }}
+          onMouseUp={(e) => {
+            writeToSerial(props.port, ["Fe0"]);
           }}
         />
       </div>

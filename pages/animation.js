@@ -45,11 +45,14 @@ export default function Animation(props) {
     }
   }, [props.port]);
 
-  //style buttons based on running state
+  //style buttons based on running state, and send commands based on running state
   useEffect(() => {
     //app logic
     switch (runningState) {
       case 0:
+        //stopped
+        writeToSerial(props.port, ["Fa0"]);
+        writeToSerial(props.port, ["Fb0"]);
         startBtn.current.classList.remove("running");
         startBtn.current.innerHTML = "Demarrer";
 
@@ -63,6 +66,9 @@ export default function Animation(props) {
 
         break;
       case 1:
+        //running
+        writeToSerial(props.port, ["Fa1"]);
+        writeToSerial(props.port, ["Fb0"]);
         startBtn.current.classList.add("running");
         startBtn.current.innerHTML = "Annuler";
 
@@ -76,6 +82,8 @@ export default function Animation(props) {
 
         break;
       case 2:
+        //paused
+        writeToSerial(props.port, ["Fb0"]);
         pauseBtn.current.classList.add("running");
         pauseBtn.current.innerHTML = "Redemarrer";
         testBtn.current.classList.remove("disabled");
@@ -137,7 +145,9 @@ export default function Animation(props) {
               id="test"
               type="press"
               innerRef={testBtn}
-              onClick={() => {}}
+              onClick={() => {
+                writeToSerial(props.port, ["Fc1"]);
+              }}
             >
               Camera Test
             </MenuButton>

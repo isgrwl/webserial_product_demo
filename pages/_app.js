@@ -3,6 +3,7 @@ import "../public/styles/globals.css";
 import { useState, useEffect, createContext } from "react";
 import PairedBox from "../components/PairedBox";
 import store from "store2";
+import { stringifyQuery } from "next/dist/server/server-route-utils";
 
 function MyApp({ Component, pageProps }) {
   const [paired, setPaired] = useState(0);
@@ -13,6 +14,7 @@ function MyApp({ Component, pageProps }) {
     flashDelay: store("flashDelay") || 0,
     rotationDirection: store("rotationDirection") || 0,
     rotationSpeed: store("rotationSpeed") || 0,
+    boxValues: store("boxValues") || new Array(24).fill(0),
   });
 
   const [port, setPort] = useState({});
@@ -52,7 +54,6 @@ function MyApp({ Component, pageProps }) {
 
   //tie app logic to ports
   useEffect(() => {
-    console.log(port);
     (async () => {
       if (paired) {
         //if port is uninitialized, initialize it then open it and store it in state
@@ -63,7 +64,7 @@ function MyApp({ Component, pageProps }) {
           try {
             console.log("opening port..");
             let ports = await navigator.serial.getPorts();
-            await ports[0].open({ baudRate: 115200 });
+            await ports[0].open({ baudRate: 9600 });
 
             setPort((s) => {
               return ports[0];
@@ -74,9 +75,13 @@ function MyApp({ Component, pageProps }) {
               e.target.close();
             });
             //start reading on port
-            while (ports[0].readable) {
-              const reader = ports[0].readable.getReader();
 
+            while (ports[0].readable) {
+              const textDecoder = new TextDecoderStream();
+              const readableStreamClosed = ports[0].readable.pipeTo(
+                textDecoder.writable
+              );
+              const reader = textDecoder.readable.getReader();
               try {
                 while (true) {
                   console.log("reading...");
@@ -87,7 +92,16 @@ function MyApp({ Component, pageProps }) {
                     break;
                   }
                   if (value) {
+                    console.log("message: ");
                     console.log(value);
+                    if (value == "OK") {
+                      console.log("read next now");
+                    }
+                    /*console.log(
+                      value.map((s) => {
+                        //return String.fromCharCode(s);
+                      })
+                    );*/
                   }
                 }
               } catch (error) {
@@ -95,8 +109,12 @@ function MyApp({ Component, pageProps }) {
                 console.log(error);
               }
             }
+
+            //await port.close();
           } catch (err) {
             console.log(err);
+          } finally {
+            //reader.releaseLock();
           }
         } else {
           console.log("Port is already open");
@@ -107,7 +125,7 @@ function MyApp({ Component, pageProps }) {
     })();
   }, [paired]);
 
-  useEffect(() => {});
+  //useEffect(() => {});
 
   //keep settings synced
   //useEffect(() => {}, [settings]);
