@@ -31,10 +31,6 @@ export default function Manuel(props) {
   return (
     <>
       <MyHead title="Photos E-Commerce"></MyHead>
-      {/* <Script
-        src="/scripts/ecomAnimation.js"
-        strategy="afterInteractive"
-  ></Script>*/}
       <div className="container-fluid">
         {/**Nav bar */}
         <Navbar>Mode Manuel</Navbar>
@@ -44,23 +40,21 @@ export default function Manuel(props) {
           <Menu>
             <MenuButton
               onClick={() => {
-                if (props.paired) {
-                  writeToSerial(props.port,["Fi1"]);
-                }
+                writeToSerial(props.port, "23 02 54 F");
               }}
             >
               Tourner une position
             </MenuButton>
             <MenuButton
               onClick={() => {
-                writeToSerial(props.port,["Fd1"]);
+                writeToSerial(props.port, "23 02 54 11");
               }}
             >
               Camera
             </MenuButton>
             <MenuButton
               onClick={() => {
-                writeToSerial(props.port,["Fj1"]);
+                writeToSerial(props.port, "23 02 54 10");
               }}
             >
               Annuler

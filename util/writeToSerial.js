@@ -1,34 +1,37 @@
 //t type: v or f (variable or function)
 //l letter: a-f (which variable to act on eg laserAngle, rotationSpeed)
 //v val: integer value to set variable to
-export default async function (port, instructions) {
+export default async function (port, instruction) {
+  let textEncoder, writableStreamClosed, writer, signals
   //takes array of instructions
-  if (!port.writable?.locked && port.writable) {
-    try {
-      const textEncoder = new TextEncoderStream();
-      const writableStreamClosed = textEncoder.readable.pipeTo(port.writable);
-      const writer = textEncoder.writable.getWriter();
-
-      //console.log(writer);
-      //console.log(formattedInstructions);
-      for (let instruction of instructions) {
-        console.log("writing..");
-        await writer.write(instruction);
+  /*setTimeout(() => {
+    console.log('hi')
+  }, 5000);*/
+  if (port.readable?.locked) {
+    if (!port.writable?.locked && port.writable) {
+      try {
+        //write hex digits passed to arduino as decimal
+        writer = port.writable.getWriter();
+        console.log(HexStringToDecimal(instruction))
+        await writer.write(new Uint8Array(HexStringToDecimal(instruction)));
+        writer.releaseLock()
       }
-
-      writer.releaseLock();
-    } catch (err) {
-      console.log(err);
+      catch (err) {
+        console.log(err);
+      }
+    } else {
+      console.log("cant write")
     }
   }
+
+
 }
-/*
-function HexArrayToDecimal(s) {
-  const nums = s.split(" ");
-  return nums.map((n) => {
-    return parseInt(n, 16);
-  });
-}*/
+
+function HexStringToDecimal(s) {
+  return s.split(" ").map((n) => {
+    return parseInt(n, 16)
+  })
+}
 
 
 

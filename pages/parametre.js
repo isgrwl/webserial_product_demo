@@ -4,12 +4,16 @@ import NavbarB from "../components/NavbarB";
 import ParamSlider from "../components/ParamSlider";
 import Footer from "../components/Footer";
 import ParamLaser from "../components/ParamLaser";
-
+import saveVariables from "../util/saveVariables"
 import { useEffect, useState } from "react";
 import store from "store2";
 import ParamRotation from "../components/ParamRotation";
 
 export default function Parametre(props) {
+  useEffect(() => {
+    saveVariables(props.port, props.params)
+  }, [props.params, props.port]
+  )
   return (
     <>
       <MyHead title="Animation"></MyHead>

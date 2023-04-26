@@ -143,6 +143,7 @@ export default class Ecom extends React.Component {
                   this.setState({
                     runningState: this.state.runningState === 1 ? 0 : 1,
                   });
+                  
                 }}
               >
                 Prendre les photos
@@ -150,7 +151,7 @@ export default class Ecom extends React.Component {
               <MenuButton
                 id="test"
                 onClick={() => {
-                  writeToSerial(props.port, ["Fc1"]);
+                  writeToSerial(props.port, "23 02 54 0D");
                 }}
               >
                 Camera test

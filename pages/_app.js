@@ -7,84 +7,82 @@ import { stringifyQuery } from "next/dist/server/server-route-utils";
 
 function MyApp({ Component, pageProps }) {
   const [paired, setPaired] = useState(0);
-  const [params, setParams] = useState({
-    numPhotos: store("numPhotos") || 0,
-    laserActive: store("laserActive") || 0,
-    laserAngle: store("laserAngle") || 0,
-    flashDelay: store("flashDelay") || 0,
-    rotationDirection: store("rotationDirection") || 0,
-    rotationSpeed: store("rotationSpeed") || 0,
-    boxValues: store("boxValues") || new Array(24).fill(0),
-  });
-
   const [port, setPort] = useState({});
 
-  //add event listeners on mount
+  //initialize state from localStorage
+  const [params, setParams] = useState({
+    numPhotos: store("numPhotos") ?? 0,
+    laserActive: store("laserActive") ?? 0,
+    laserAngle: store("laserAngle") ?? 0,
+    flashDelay: store("flashDelay") ?? 0,
+    rotationDirection: store("rotationDirection") ?? 0,
+    rotationSpeed: store("rotationSpeed") ?? 0,
+    boxValues: store("boxValues") ?? new Array(24).fill(0),
+  });
+
+  //keep params synced with localStorage
   useEffect(() => {
-    //check if port is available on mount
+    store(params);
+  }, [params]);
+
+  //keep port and pairing updated
+  useEffect(() => {
+    //reconnect to port on refresh
     (async () => {
       const ports = await navigator.serial.getPorts();
       if (ports.length > 0) {
         setPaired(1);
+        setPort(ports[0]);
       } else {
         setPaired(0);
       }
     })();
 
+    //monitor connect and disconnect events for device
     navigator.serial.addEventListener("connect", (e) => {
-      (async () => {
-        const availablePorts = await navigator.serial.getPorts();
-
-        if (availablePorts.length > 0) {
-          setPaired(1);
-          setPort((s) => {
-            return availablePorts[0];
-          });
-        }
-      })();
-
-      console.log("Connected serial device.");
+      setPaired(1);
+      setPort(e.target);
+      console.log("Reconnected to device.");
     });
 
     navigator.serial.addEventListener("disconnect", (e) => {
       setPaired(0);
+      setPort(null);
       console.log("Disconnected serial device.");
     });
   }, []);
 
-  //tie app logic to ports
+  //tie app logic to ports, begin reading
+  //TODO: move this next to port initialization so that effect isnt called twice
   useEffect(() => {
     (async () => {
       if (paired) {
         //if port is uninitialized, initialize it then open it and store it in state
         if (
           Object.getPrototypeOf(port).constructor.name !== "SerialPort" ||
-          port.readable == null
+          port.readable === null
         ) {
+
           try {
             console.log("opening port..");
-            let ports = await navigator.serial.getPorts();
-            await ports[0].open({ baudRate: 9600 });
-
-            setPort((s) => {
-              return ports[0];
-            });
+            await port.open({ baudRate: 115200 });
 
             //close port nicely on disconnect
-            ports[0].addEventListener("disconnect", (e) => {
+            port.addEventListener("disconnect", (e) => {
               e.target.close();
             });
             //start reading on port
+            const textDecoder = new TextDecoderStream();
+            const readableStreamClosed = port.readable.pipeTo(
+              textDecoder.writable
+            );
+            const reader = textDecoder.readable.getReader();
 
-            while (ports[0].readable) {
-              const textDecoder = new TextDecoderStream();
-              const readableStreamClosed = ports[0].readable.pipeTo(
-                textDecoder.writable
-              );
-              const reader = textDecoder.readable.getReader();
+            while (port.readable) {
               try {
                 while (true) {
                   console.log("reading...");
+
                   const { value, done } = await reader.read();
                   if (done) {
                     // Allow the serial port to be closed later.
@@ -94,14 +92,6 @@ function MyApp({ Component, pageProps }) {
                   if (value) {
                     console.log("message: ");
                     console.log(value);
-                    if (value == "OK") {
-                      console.log("read next now");
-                    }
-                    /*console.log(
-                      value.map((s) => {
-                        //return String.fromCharCode(s);
-                      })
-                    );*/
                   }
                 }
               } catch (error) {
@@ -114,24 +104,21 @@ function MyApp({ Component, pageProps }) {
           } catch (err) {
             console.log(err);
           } finally {
-            //reader.releaseLock();
+
           }
         } else {
           console.log("Port is already open");
         }
       } else {
         //only open port if its not already open
+        console.log("Not paired.")
       }
     })();
   }, [paired]);
 
   //useEffect(() => {});
 
-  //keep settings synced
-  //useEffect(() => {}, [settings]);
-  useEffect(() => {
-    store(params);
-  }, [params]);
+
 
   return (
     <>
