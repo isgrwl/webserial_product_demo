@@ -1,0 +1,46 @@
+@mixin inputStyling
+    color: var(--main-accent-1)
+    font-weight: bold
+    border: none
+    font-size: 1.5rem
+    display: inline
+    width: 14%
+
+.slider
+    -webkit-appearance: none
+    height: 15px
+    border-radius: 10px
+    background: #dedede
+    outline: none
+
+    &::-webkit-slider-thumb
+        -webkit-appearance: none
+        appearance: none
+        width: 30px
+        height: 30px
+        border-radius: 50%
+        background: var(--main-accent-1)
+        cursor: pointer
+
+    &::-moz-range-thumb
+        width: 30px
+        height: 30px
+        border-radius: 50%
+        background: #dedede
+        cursor: pointer
+
+    &::-webkit-slider-thumb:hover
+        background-color: var(--highlight-1)
+
+.numberDisplay
+    @include inputStyling
+
+    &:focus
+        outline: none
+    &:disabled
+        background-color: inherit
+
+/*
+
+    input[type="range"]:focus
+        outline: none

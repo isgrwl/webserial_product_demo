@@ -1,0 +1,54 @@
+:root {
+  --main-accent-1: #0000a4;
+  --highlight-1: green;
+  --main-text: white;
+  --main-accent-1-disabled: #0000a477;
+}
+
+html,
+body {
+  padding: 0px;
+  margin: 0px;
+  height:100%;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--main-text);
+}
+
+h2 {
+  font-size: 3rem;
+  font-weight: bold;
+  color: var(--main-accent-1);
+  text-align: center;
+  text-justify: inter-word;
+}
+
+p {
+  font-size: 1.5rem;
+  color: #0000a4;
+  text-align: left;
+  text-justify: inter-word;
+  padding: 15px;
+}
+
+span {
+  font-size: 1.5rem;
+  color: var(--main-accent-1);
+  text-align: left;
+  text-justify: inter-word;
+  padding: 2% 5%;
+  font-weight: bold;
+  margin: 1%;
+}
