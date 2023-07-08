@@ -1,38 +1,30 @@
+import Image from "next/image";
 import { useEffect } from "react";
-import writeToSerial from "@util/writeToSerial";
+import style from "css/modules/Components.module.sass"
 
 export default function MenuArrows() {
-  useEffect(() => {
-    document.addEventListener("mouseup", (e) => {
-      handleMouseup(e);
-    });
-  }, []);
   return (
-    <div type="menuOption" className="d-flex w-75 ">
-      <div className="col d-flex justify-content-center arrowButton">
-        <img
+    <div className="d-flex justify-content-evenly w-75 h-100 ">
+
+      <div className="col-4 position-relative">
+        <Image
+          alt="Left Rotation Arrow"
+          layout="fill"
+          objectFit="contain"
           src="/imgs/fleche gauche-1.jpg"
-          className="img-fluid"
-          onMouseDown={(e) => {
-            handleMousedown(e);
-            writeToSerial(props.port, ["Ff1"]);
-          }}
-          onMouseUp={(e) => {
-            writeToSerial(props.port, ["Ff0"]);
-          }}
+          onMouseDown={handleMouseup}
+          onMouseUp={handleMouseup}
         />
       </div>
-      <div className="col d-flex justify-content-center arrowButton">
-        <img
+      <p></p>
+      <div className="col-4 position-relative ">
+        <Image
+          alt="Right rotation Arrow"
+          layout="fill"
+          objectFit="contain"
           src="/imgs/fleche droit-1.jpg"
-          className="img-fluid "
-          onMouseDown={(e) => {
-            handleMousedown(e);
-            writeToSerial(props.port, ["Fe1"]);
-          }}
-          onMouseUp={(e) => {
-            writeToSerial(props.port, ["Fe0"]);
-          }}
+          onMouseDown={handleMousedown}
+          onMouseUp={handleMouseup}
         />
       </div>
     </div>
@@ -44,7 +36,5 @@ function handleMousedown(e) {
 }
 
 function handleMouseup(e) {
-  document.querySelectorAll(".arrowClick").forEach((el) => {
-    el.classList.remove("arrowClick");
-  });
+  e.target.classList.add("arrowClick")
 }

@@ -1,18 +1,18 @@
 import "bootstrap/dist/css/bootstrap.css";
 import "../css/globals.css";
-import { useState, useEffect, createContext } from "react";
+
 import StatusBar from "@ui/StatusBar";
-import { stringifyQuery } from "next/dist/server/server-route-utils";
+import { SerialProvider } from "@context/SerialContext";
 import { AppProvider } from "@context/AppContext";
-import { RunProvider } from "@context/RunContext";
+
 function MyApp({ Component, pageProps }) {
   return (
-    <AppProvider>
-      <RunProvider>
+    <SerialProvider>
+      <AppProvider>
         <StatusBar ></StatusBar>
         <Component {...pageProps} />
-      </RunProvider>
-    </AppProvider>
+      </AppProvider>
+    </SerialProvider>
   );
 }
 

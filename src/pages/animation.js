@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useContext } from "react";
-import { useRouter } from "next/router";
-import Image from "next/image";
+import React, { useEffect, useRef, useContext, useState } from "react";
 
 import { AppContext } from "@context/AppContext";
-import { RunContext } from "@context/RunContext";
+import { SerialContext } from "@context/SerialContext";
 
+import Image from "next/image";
 import MyHead from "@ui/MyHead";
 import Menu from "@ui/Menu";
 import MenuButton from "@ui/MenuButton";
@@ -14,94 +13,41 @@ import MenuArrows from "@ui/MenuArrows";
 import AnimationDisplay from "@ui/AnimationDisplay";
 import Footer from "@ui/Footer";
 import Navbar from "@ui/Navbar";
-import PressButton from "@ui/PressButton";
-import StartButton from "components/control/StartButton";
+import PressButton from "components/control/PressButton";
 import PauseButton from "components/control/PauseButton";
 import CameraButton from "components/control/CameraButton";
-
+import RotationArrows from "components/control/RotationArrows";
+import ToggleButton from "components/control/ToggleButton";
 
 export default function Animation(props) {
-  const { params } = useContext(AppContext)
-  const { runningState } = useContext(RunContext)
-  //0=stopped,1=running,2=paused
-  const [photosTaken, setPhotosTaken] = React.useState(0);
-  const [platformRotation, setPlatformRotation] = React.useState(0);
-  const router = useRouter();
+  const {
+    photosTaken,
+    platformPosition,
+    params,
+    appState,
+    setAppState,
+    appFunctions,
+  } = useContext(AppContext);
+  const { portOpen, readyToRun } = useContext(SerialContext);
 
-  const startBtn = useRef();
-  const pauseBtn = useRef();
-  const testBtn = useRef();
+  //keep state to prevent user input while pilatform is running elsewhere
+  const [enableInput, setEnableInput] = useState(true);
 
-  //style buttons based on running state, and send commands based on running state
-  /*
   useEffect(() => {
-    //app logic
-    switch (runningState) {
-      case 0:
-        //stopped
-        //writeToSerial(port, ["Fa0"]);
-        //writeToSerial(port, ["Fb0"]);
-        startBtn.current.classList.remove("running");
-        startBtn.current.innerHTML = "Demarrer";
-
-        pauseBtn.current.classList.add("disabled");
-        pauseBtn.current.classList.remove("running");
-        pauseBtn.current.disabled = true;
-        pauseBtn.current.innerHTML = "Pause";
-
-        testBtn.current.classList.remove("disabled");
-        testBtn.current.disabled = false;
-
-        break;
-      case 1:
-        //running
-        //writeToSerial(port, ["Fa1"]);
-        //writeToSerial(port, ["Fb0"]);
-        startBtn.current.classList.add("running");
-        startBtn.current.innerHTML = "Annuler";
-
-        pauseBtn.current.classList.remove("disabled");
-        pauseBtn.current.classList.remove("running");
-        pauseBtn.current.disabled = false;
-        pauseBtn.current.innerHTML = "Pause";
-
-        testBtn.current.classList.add("disabled");
-        testBtn.current.disabled = true;
-
-        break;
-      case 2:
-        //paused
-        //writeToSerial(port, ["Fb0"]);
-        pauseBtn.current.classList.add("running");
-        pauseBtn.current.innerHTML = "Redemarrer";
-        testBtn.current.classList.remove("disabled");
-        testBtn.current.disabled = false;
-
-        break;
-    }
-  }, [runningState]);
-  */
-
-  //listen for page change
-  /*
-  useEffect(() => {
-    router.events.on("routeChangeStart", (url, { shallow }) => {
-      console.log(router.pathname);
-      if (["/manuel", "/animation", "/ecom"].includes(router.pathname)) {
-        console.log("don't leave!\n");
+    (async () => {
+      if (appState == "360") {
+        await appFunctions.start360();
+      } else {
+        //cancel running
       }
-    });
-  }, [router]);
-  */
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appState]);
+
   return (
     <>
       <MyHead title="Animation"></MyHead>
-      {/*
-        <Script
-          src="/scripts/360controls.js"
-          strategy="afterInteractive"
-        ></Script>
-      */}
+      {/*Main container*/}
       <div className="container-fluid d-flex flex-column align-items-center justify-content-center vw-100 vh-100 ">
         {/**Nav bar */}
         <Navbar>Prise de vue animation 360</Navbar>
@@ -111,24 +57,50 @@ export default function Animation(props) {
           <div className="col w-50 h-75">
             <div className="d-flex flex-column flex-nowrap align-items-center justify-content-center">
               {/**Menu buttons */}
-              <StartButton>
+              <ToggleButton
+                task="360"
+                appState={appState}
+                setAppState={setAppState}
+                portOpen={portOpen}
+                readyToRun={readyToRun}
+              >
                 Demarrer
-              </StartButton>
-              <PauseButton
+              </ToggleButton>
+              <PressButton
+                task="360"
+                appState={appState}
+                setAppState={setAppState}
+                portOpen={portOpen}
+                readyToRun={readyToRun}
+                onClick={null}
               >
                 Pause
-              </PauseButton>
-              <CameraButton
+              </PressButton>
+              <PressButton
+                task="360"
+                appState={appState}
+                portOpen={portOpen}
+                readyToRun={readyToRun}
+                onClick={appFunctions.cameraTest}
               >
                 Camera Test
-              </CameraButton>
+              </PressButton>
               {/**Display params */}
-              <MenuNumber val={params.numPhotos}>Photos a faire</MenuNumber>
-              <MenuNumber val={photosTaken}>Photos Realisees</MenuNumber>
-              <MenuNumber val={platformRotation}>Position du Plateau</MenuNumber>
-              <MenuNumber val={params.flashDelay}>
-                Delais de Flashes
+              <MenuNumber
+                val={
+                  [24, 30, 36, 40, 45, 60, 90, 120][params.numPhotos] -
+                  (appState == "360" ? photosTaken : 0)
+                }
+              >
+                Photos a faire
               </MenuNumber>
+              <MenuNumber val={appState == "360" ? photosTaken : 0}>
+                Photos Realisees
+              </MenuNumber>
+              <MenuNumber val={appState == "360" ? platformPosition : 0}>
+                Position du Plateau
+              </MenuNumber>
+              <MenuNumber val={params.flashDelay}>Delais de Flashes</MenuNumber>
               <MenuRotation val={params.rotationDirection}>
                 Sens de Rotation
               </MenuRotation>
@@ -136,7 +108,20 @@ export default function Animation(props) {
                 Vitesse de Rotation
               </MenuNumber>
               {/**left/right arrows */}
-              <MenuArrows></MenuArrows>
+              <RotationArrows
+                arrowFuncs={{
+                  leftArrowDown: appFunctions.leftRotationArrowDown,
+                  rightArrowDown: appFunctions.rightRotationArrowDown,
+                  arrowsUp: appFunctions.rotationArrowsUp,
+                }}
+                disabled={
+                  !(
+                    (appState == "" || appState == "360") &&
+                    portOpen &&
+                    readyToRun
+                  )
+                }
+              ></RotationArrows>
             </div>
           </div>
           {/**Display logo */}
@@ -145,13 +130,19 @@ export default function Animation(props) {
               id="display"
               className="animation360 position-relative h-50 w-50"
             >
-              <Image src="/imgs/platformIcon.png" alt="Turn Icon" objectFit="contain" layout="fill" />
+              <Image
+                style={{ transform: `rotate(${platformPosition}deg)` }}
+                src="/imgs/platformIcon.png"
+                alt="Turn Icon"
+                objectFit="contain"
+                layout="fill"
+              />
             </div>
           </div>
         </div>
         {/**Help button */}
         <Footer path="animation_aide"></Footer>
-      </div >
+      </div>
     </>
   );
 }

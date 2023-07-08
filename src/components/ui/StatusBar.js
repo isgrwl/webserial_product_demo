@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
+import { SerialContext } from "@context/SerialContext";
 import { AppContext } from "@context/AppContext";
-import { RunContext } from "@context/RunContext";
 
 function PairedBox(props) {
   const m = {
@@ -48,15 +48,15 @@ function RunningBox(props) {
 }
 
 export default function StatusBar(props) {
-  const { paired } = useContext(AppContext)
-  const { runningState } = useContext(RunContext)
+  const { portOpen } = useContext(SerialContext)
+  const { runState } = useContext(AppContext)
   return (
     <div className="d-flex position-absolute w-100 gap-1">
-      <PairedBox p={paired}></PairedBox>
-      <RunningBox r={runningState}></RunningBox>
+      <PairedBox p={portOpen ? 1 : 0}></PairedBox>
+      <RunningBox r={runState ? 1 : 0}></RunningBox>
       <div className="flex-fill px-2 py-1" >
         <div style={{ color: "red", fontWeight: "bold" }}>
-          {paired ? "" : "Please pair your device in the connect section"}
+          {portOpen ? "" : "Please pair your device in the connect section"}
         </div>
       </div >
     </div >

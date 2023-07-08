@@ -8,8 +8,8 @@
             "@context/*": [
                 "components/context/*"
             ],
-            "@util/*": [
-                "util/*"
+            "@serial/*": [
+                "serial/*"
             ]
         }
     }

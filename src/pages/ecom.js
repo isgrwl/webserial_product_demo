@@ -1,5 +1,6 @@
-import { useContext, useState, useRef } from "react";
+import { useContext, useState, useRef, useEffect } from "react";
 import { AppContext } from "@context/AppContext";
+import { SerialContext } from "@context/SerialContext";
 
 import MyHead from "@ui/MyHead";
 import Navbar from "@ui/Navbar";
@@ -11,107 +12,39 @@ import MenuRotation from "@ui/MenuRotation";
 import MenuArrows from "@ui/MenuArrows";
 import Footer from "@ui/Footer";
 import React from "react";
-import writeToSerial from "@util/writeToSerial";
-import StartButton from "components/control/StartButton";
+import StartButton from "components/control/ToggleButton";
 import CameraButton from "components/control/CameraButton";
-
+import RotationArrows from "components/control/RotationArrows";
 import ChooseAnglesButton from "components/control/ChooseAnglesButton";
-
+import ToggleButton from "components/control/ToggleButton";
+import PressButton from "components/control/PressButton";
+import Image from "next/image";
+import AnimationDisplay from "@ui/AnimationDisplay";
 
 export default function Ecom(props) {
-  const { params, setParams, paired } = useContext(AppContext)
-  const [selecting, setSelecting] = useState(0)
-  //0 = stopped, 1= running, 2= selecting
+  const {
+    photosTaken,
+    platformPosition,
+    params,
+    setParams,
+    appState,
+    setAppState,
+    appFunctions,
+  } = useContext(AppContext);
+  const { portOpen, readyToRun } = useContext(SerialContext);
+  const [selecting, setSelecting] = useState(0);
 
-  /*
-    componentDidMount() {
-      const startBtn = document.getElementById("start");
-      const selectBtn = document.getElementById("select");
-      const testBtn = document.getElementById("test");
-   
-      //add test btn animation
-      testBtn.addEventListener("mousedown", (e) => {
-        testBtn.classList.add("running");
-      });
-      document.addEventListener("mouseup", (e) => {
-        testBtn.classList.remove("running");
-      });
-   
-      document.querySelectorAll('[find="selectButton"]').forEach((e) => {
-        //e.disabled = true;
-      });
-    }
-   
-    useEffect(() => {
-      const startBtn = document.getElementById("start");
-      const selectBtn = document.getElementById("select");
-      const testBtn = document.getElementById("test");
-      //app logic
-      switch (this.state.runningState) {
-        case 0:
-          //stopped
-          writeToSerial(this.props.port, [
-            "Fg" + this.props.params.boxValues.join(""),
-          ]);
-          writeToSerial(this.props.port, "Fh0");
-   
-          startBtn.classList.remove("running");
-          startBtn.classList.remove("disabled");
-          startBtn.disabled = false;
-          startBtn.innerHTML = "Prendre les photos";
-   
-          selectBtn.classList.remove("disabled");
-          selectBtn.classList.remove("running");
-          selectBtn.disabled = false;
-   
-          testBtn.classList.remove("disabled");
-          testBtn.disabled = false;
-   
-          document.querySelectorAll('[type="menuOption"]').forEach((e) => {
-            e.classList.remove("disabled");
-            e.disabled = false;
-          });
-   
-          document.querySelectorAll('[find="selectButton"]').forEach((e) => {
-            //e.disabled = true;
-          });
-          break;
-        case 1:
-          //running
-          writeToSerial(this.props.port, "Fh1");
-          startBtn.classList.add("running");
-          startBtn.innerHTML = "Annuler";
-   
-          testBtn.classList.add("disabled");
-          testBtn.disabled = true;
-   
-          selectBtn.classList.add("disabled");
-          selectBtn.disabled = true;
-   
-          document.querySelectorAll('[type="menuOption"]').forEach((e) => {
-            e.classList.add("disabled");
-            e.disabled = true;
-          });
-   
-          document.querySelectorAll('[find="selectButton"]').forEach((e) => {
-            //e.disabled = true;
-          });
-          break;
-        case 2:
-          selectBtn.classList.add("running");
-   
-          startBtn.classList.add("disabled");
-          startBtn.disabled = true;
-   
-          testBtn.classList.add("disabled");
-          testBtn.disabled = true;
-   
-          document.querySelectorAll('[find="selectButton"]').forEach((e) => {
-            //e.disabled = false;
-          });
+  useEffect(() => {
+    (async () => {
+      if (appState == "ecom") {
+        await appFunctions.startEcom();
+      } else {
+        //cancel running
       }
-    })
-  */
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appState]);
+
   return (
     <>
       <MyHead title="Photos E-Commerce"></MyHead>
@@ -128,45 +61,77 @@ export default function Ecom(props) {
           {/**Menu */}
           <div className="col w-50 h-75">
             <div className="d-flex flex-column flex-nowrap align-items-center justify-content-center">
-              <ChooseAnglesButton selecting={selecting} setSelecting={setSelecting}>
-                Choisir les angles
+              <ChooseAnglesButton
+                selecting={selecting}
+                setSelecting={setSelecting}
+                task="ecom"
+                appState={appState}
+                portOpen={portOpen}
+                readyToRun={readyToRun}
+                writeBoxValues={appFunctions.writeEcomAngles}
+              >
+                {selecting ? "Annuler choisir" : "Choisir les angles"}
               </ChooseAnglesButton>
               <MenuNumber>Nombre de photos</MenuNumber>
               <MenuNumber>Angle Choisi</MenuNumber>
-              <StartButton>
+              <ToggleButton
+                task="ecom"
+                appState={appState}
+                setAppState={setAppState}
+                readyToRun={readyToRun}
+                selecting={selecting}
+              >
                 Prendre les photos
-              </StartButton>
-              <CameraButton>
+              </ToggleButton>
+              <PressButton
+                task="ecom"
+                appState={appState}
+                portOpen={portOpen}
+                readyToRun={readyToRun}
+                onClick={appFunctions.cameraTest}
+              >
                 Camera test
-              </CameraButton>
+              </PressButton>
               <MenuNumber>Photos realisees</MenuNumber>
               <MenuNumber>Position du plateau</MenuNumber>
               <MenuNumber>Delais des flashes</MenuNumber>
               <MenuRotation>Sens de rotation</MenuRotation>
               <MenuNumber>Vitesse de rotation</MenuNumber>
-              <MenuArrows></MenuArrows>
+              <RotationArrows
+                arrowFuncs={{
+                  leftArrowDown: appFunctions.leftRotationArrowDown,
+                  rightArrowDown: appFunctions.rightRotationArrowDown,
+                  arrowsUp: appFunctions.rotationArrowsUp,
+                }}
+                disabled={
+                  !(
+                    (appState == "" || appState == "ecom") &&
+                    portOpen &&
+                    readyToRun
+                  )
+                }
+              ></RotationArrows>
             </div>
           </div>
           {/**Display */}
           <div className="col w-50 h-75 d-flex flex-column justify-content-center align-items-center">
-            <div
-              id="display"
-              className="animation360 position-relative h-50 w-50"
-            >
-
-              <AnimationDisplayB
-                id="display"
-
-                paired={paired}
-                params={params}
-                setParams={setParams}
-              ></AnimationDisplayB>
-            </div>
+            <AnimationDisplay
+              rotation={0}
+              setBoxVal={(i, v) => {
+                setParams((s) => {
+                  let boxVals = s.boxValues.split("");
+                  boxVals[i] = v;
+                  return { ...s, boxValues: boxVals.join("") };
+                });
+              }}
+              boxValues={params.boxValues}
+              selecting={!selecting}
+            ></AnimationDisplay>
           </div>
         </div>
         {/**Help button */}
         <Footer path="ecom_aide"></Footer>
-      </div >
+      </div>
     </>
   );
 }

@@ -1,5 +1,7 @@
 import style from "css/modules/Buttons.module.sass"
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { SerialContext } from "@context/SerialContext";
+import sendCommand from "serial/sendCommand";
 
 export default function CameraButton(props) {
     const [pressed, setPressed] = useState(0)
@@ -23,9 +25,10 @@ export default function CameraButton(props) {
             onMouseDown={(e) => {
                 setPressed(1)
             }}
+            disabled={!((props.appState == "" || props.appState == props.task) && props.portOpen && props.readyToRun)}
             onClick={props.onClick}
         >
             {props.children}
-        </button>
+        </button >
     );
 }

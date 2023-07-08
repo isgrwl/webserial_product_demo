@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from "react";
 import store from "store2";
 import { AppContext } from "@context/AppContext";
-import style from "css/modules/Params.module.sass"
+import style from "css/modules/Params.module.sass";
 
 export default function ParamSlider(props) {
   const { params, setParams } = useContext(AppContext);
@@ -12,10 +12,11 @@ export default function ParamSlider(props) {
         className={style.numberDisplay}
         type="number"
         id={props.id + "Number"}
-        value={params[props.id]}
+        value={props.values ? props.values[params[props.id]] : params[props.id]}
         readOnly
       ></input>
       <input
+        disabled={props.appState != ""}
         type="range"
         min={props.min}
         max={props.max}
@@ -28,6 +29,7 @@ export default function ParamSlider(props) {
           e.preventDefault();
         }}
         value={params[props.id]}
+        onMouseUp={props.updateParam}
       />
     </div>
   );

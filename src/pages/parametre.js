@@ -1,21 +1,18 @@
 import { useEffect, useState, useContext } from "react";
 import store from "store2";
 
-
 import MyHead from "@ui/MyHead";
 import Link from "next/link";
 import ParamsNavbar from "@ui/ParamsNavbar";
 import ParamSlider from "@ui/ParamSlider";
 import Footer from "@ui/Footer";
 import ParamLaser from "@ui/ParamLaser";
-import saveVariables from "@util/saveVariables"
 import ParamRotation from "@ui/ParamRotation";
 
+import { AppContext } from "@context/AppContext";
+
 export default function Parametre(props) {
-  /*useEffect(() => {
-    saveVariables(port, params)
-  }, [params, port]*
-  )*/
+  const { appFunctions, appState } = useContext(AppContext);
   return (
     <>
       <MyHead title="Animation"></MyHead>
@@ -27,8 +24,11 @@ export default function Parametre(props) {
         <div className="row d-flex flex-column w-100 h-75">
           <ParamSlider
             id="numPhotos"
-            min={24}
-            max={120}
+            min={0}
+            max={7}
+            updateParam={appFunctions.writeNumPhotos}
+            appState={appState}
+            values={[24,30,36,40,45,60,90,120]}
           >
             Choisir Nombre de photos
           </ParamSlider>
@@ -36,6 +36,8 @@ export default function Parametre(props) {
             id="flashDelay"
             min={0}
             max={10}
+            updateParam={appFunctions.writeFlashDelay}
+            appState={appState}
           >
             Choisir un delais en secondes pour le recharger les flashes
           </ParamSlider>
@@ -43,6 +45,8 @@ export default function Parametre(props) {
             id="rotationSpeed"
             min={1}
             max={5}
+            updateParam={appFunctions.writeRotationSpeed}
+            appState={appState}
           >
             Choisir la vitesse de rotation
           </ParamSlider>
@@ -50,6 +54,8 @@ export default function Parametre(props) {
             id="laserAngle"
             min={0}
             max={90}
+            updateParam={appFunctions.writeLaserAngle}
+            appState={appState}
           >
             Choisir l&apos;angle du laser
           </ParamSlider>
@@ -57,10 +63,14 @@ export default function Parametre(props) {
             {/**Rotation Button */}
             <ParamRotation
               id="rotationDirection"
+              updateParam={appFunctions.writeRotationDirection}
+              disabled={appState!=""}
             ></ParamRotation>
             {/**Enable laser button */}
             <ParamLaser
               id="laserActive"
+              updateParam={appFunctions.writeLaserActive}
+              appState={appState}
             ></ParamLaser>
           </div>
         </div>
