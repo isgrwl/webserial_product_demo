@@ -192,7 +192,7 @@ export const AppProvider = ({ children }) => {
     await writeRotationDirection();
     await writeLaserAngle();
     await writeLaserActive();
-    await writeEcomAngles();
+    //await writeEcomAngles();
     setReadyToRun(true);
   };
 
@@ -202,6 +202,8 @@ export const AppProvider = ({ children }) => {
    */
   const start360 = async () => {
     setAppState("360");
+    setPlatformPosition(0);
+    setPhotosTaken(0);
     //callback to update taken photos
     let unsub;
     let message = "";
@@ -250,20 +252,85 @@ export const AppProvider = ({ children }) => {
    * Manual: Turn platform 1 position
    */
   const turnManual = async () => {
+    if (appState != "manual") {
+      setAppState("manual");
+      setPlatformPosition(0);
+      setPhotosTaken(0);
+    }
+    let unsub;
+    let message = "";
+    new Promise((res) => {
+      unsub = subscribe((val) => {
+        message += val;
+        if (message.includes("zPosition.val")) {
+          //extract value from "nPhotoFait.val=X"
+
+          //extract value from "zPosition.val=X"
+          let platformPositionStr = message.indexOf("zPosition.val");
+          platformPositionStr = message.substring(
+            message.indexOf("=", platformPositionStr) + 1,
+            message.indexOf("�", platformPositionStr)
+          );
+
+          //update state
+          setPlatformPosition(parseInt(platformPositionStr) % 360);
+
+          message = "";
+        }
+      });
+    });
     await serialWrite(
       `${commandMap.control.turnManual[0]} ${commandMap._ending}`,
       commandMap.control.turnManual[1]
     );
+    //delete callback
+    unsub();
+
+    console.log(message);
   };
 
   /**
    * Manual: Take photo
    */
   const cameraManual = async () => {
+    if (appState != "manual") {
+      setAppState("manual");
+      setPlatformPosition(0);
+      setPhotosTaken(0);
+    }
+    let unsub;
+    let message = "";
+    new Promise((res) => {
+      unsub = subscribe((val) => {
+        message += val;
+        if (message.includes("nPhotoFait.val")) {
+          //extract value from "nPhotoFait.val=X"
+          let photosTakenStr = message.indexOf("nPhotoFait.val");
+          photosTakenStr = message.substring(
+            message.indexOf("=", photosTakenStr) + 1,
+            message.indexOf("�", photosTakenStr)
+          );
+
+          //extract value from "zPosition.val=X"
+          /*let platformPositionStr = message.indexOf("zPosition.val");
+        platformPositionStr = message.substring(
+          message.indexOf("=", platformPositionStr) + 1,
+          message.indexOf("�", platformPositionStr)
+        );*/
+
+          //update state
+          setPhotosTaken(parseInt(photosTakenStr));
+
+          message = "";
+        }
+      });
+    });
     const msg = await serialWrite(
       `${commandMap.control.cameraManual[0]} ${commandMap._ending}`,
       commandMap.control.cameraManual[1]
     );
+
+    unsub();
 
     console.log(msg);
   };
@@ -276,6 +343,9 @@ export const AppProvider = ({ children }) => {
       `${commandMap.control.cancelManual[0]} ${commandMap._ending}`,
       commandMap.control.cancelManual[1]
     );
+    setAppState("");
+    setPhotosTaken(0);
+    setPlatformPosition(0);
   };
 
   /**
@@ -323,6 +393,7 @@ export const AppProvider = ({ children }) => {
    */
   const startEcom = async () => {
     if (readyToRun) {
+      await writeEcomAngles();
       await serialWrite(
         `${commandMap.control.startEcom[0]} ${commandMap._ending}`,
         commandMap.control.startEcom[1]

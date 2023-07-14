@@ -34,7 +34,7 @@ export default function Manuel(props) {
       <MyHead title="Photos E-Commerce"></MyHead>
       <div className="container-fluid d-flex flex-column align-items-center justify-content-center vw-100 vh-100 ">
         {/**Nav bar */}
-        <Navbar>Mode Manuel TODO</Navbar>
+        <Navbar>Mode Manuel</Navbar>
         {/**Menu and display */}
         <div className="row w-100 h-100 d-flex align-items-evenly justify-content-center">
           {/**Menu */}
@@ -72,7 +72,8 @@ export default function Manuel(props) {
               </PressButton>
               <MenuNumber
                 val={
-                  params.numPhotos - (appState == "manual" ? photosTaken : 0)
+                  [24, 30, 36, 40, 45, 60, 90, 120][params.numPhotos] -
+                  (appState == "manual" ? photosTaken : 0)
                 }
               >
                 Positions a faire

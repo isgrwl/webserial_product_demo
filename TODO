@@ -1,10 +1,9 @@
 TO DO (as of Jul 8):
-- move box value syncing elsewhere so that it doesnt delay startup
-- update status bar to reflect running state
+
+- figure out how to cancel 360
 - fix delay in checkbox values updating (serial context issue?)
 - figure out pause functionality for 360
 - improve connection usability (manual connect, disconnect, etc)
-- fix manual mode
 - fix UI
 - fix french
 - consistent styling
@@ -12,8 +11,11 @@ TO DO (as of Jul 8):
 
 DONE:
 
+- fix manual mode
 - fix 'photos to take' value update
 - update ecom so that checkboxes cant be updated unless the button is enabled
 - update parametre page so that params cant be updated while tasks are running
 - update param sliders so that they increment properly
 - update parameters upon first opening port to sync to arduino
+- update status bar to reflect running state
+- move box value syncing elsewhere so that it doesnt delay startup

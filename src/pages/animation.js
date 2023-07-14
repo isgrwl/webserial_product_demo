@@ -30,9 +30,6 @@ export default function Animation(props) {
   } = useContext(AppContext);
   const { portOpen, readyToRun } = useContext(SerialContext);
 
-  //keep state to prevent user input while pilatform is running elsewhere
-  const [enableInput, setEnableInput] = useState(true);
-
   useEffect(() => {
     (async () => {
       if (appState == "360") {
