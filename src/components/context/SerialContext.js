@@ -160,7 +160,7 @@ export const SerialProvider = ({ children }) => {
         });
         const data = new Uint8Array(comDecArray);
         //write data
-        console.log("Writing: ", comStr);
+        console.log("Writing: ", data);
         await writer.write(data);
         writer.releaseLock();
 

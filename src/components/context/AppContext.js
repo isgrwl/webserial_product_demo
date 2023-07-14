@@ -80,7 +80,7 @@ export const AppProvider = ({ children }) => {
     const vals = [24, 30, 36, 40, 45, 60, 90, 120];
     if (portOpen || readyToRun) {
       await serialWrite(
-        `${commandMap.params.numPhotos[0]} 71 ${vals[params.numPhotos]} ${
+        `${commandMap.params.numPhotos[0]} 71 ${vals[params.numPhotos].toString(16)} ${
           commandMap._ending
         }`,
         commandMap.params.numPhotos[1]
