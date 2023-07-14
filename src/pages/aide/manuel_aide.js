@@ -1,4 +1,4 @@
-import MyHead from "../@ui/MyHead";
+import MyHead from "@ui/MyHead";
 import Link from "next/link";
 
 export default function animationAide() {
