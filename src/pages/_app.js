@@ -7,12 +7,12 @@ import { AppProvider } from "@context/AppContext";
 
 function MyApp({ Component, pageProps }) {
   return (
-    <SerialProvider>
+    
       <AppProvider>
         <StatusBar ></StatusBar>
         <Component {...pageProps} />
       </AppProvider>
-    </SerialProvider>
+
   );
 }
 
